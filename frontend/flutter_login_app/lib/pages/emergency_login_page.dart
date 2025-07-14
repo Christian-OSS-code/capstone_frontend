@@ -30,7 +30,7 @@ class _EmergencyLoginPageState extends State<EmergencyLoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Your request is been processed")),
       );
-      Navigator.pushReplacementNamed(context, '/help');
+      Navigator.pushReplacementNamed(context, '/mechanic_service_request');
     }
   }
 

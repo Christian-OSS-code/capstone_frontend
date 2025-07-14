@@ -30,6 +30,7 @@ dependencies:
   geolocator: ^11.1.0 # Keep your current version or update if needed
   permission_handler: ^12.0.0+1 # Keep your current version or update if needed
   geocoding: ^2.2.1 # ADD THIS LINE
+  url_launcher: ^6.3.0 # Or the latest stable version
 
 dev_dependencies:
   flutter_test:

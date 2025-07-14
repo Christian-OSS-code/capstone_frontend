@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_login_app/pages/emergency_login_page.dart';
 import 'package:flutter_login_app/pages/my_home_page.dart';
 import 'package:flutter_login_app/pages/user_login_page.dart';
+import 'package:flutter_login_app/pages/mechanic_service_request.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +33,8 @@ class MyApp extends StatelessWidget {
         '/emergency_login_page': (context) => const EmergencyLoginPage(),
         '/signup_page': (context) => const SignUpPage(),
         '/user_login_page': (context) => const UserLoginPage(),
+        '/mechanic_service_request': (context) =>
+            const MechanicServiceRequest(),
       },
     );
   }
