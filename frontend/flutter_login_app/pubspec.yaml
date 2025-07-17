@@ -1,10 +1,7 @@
 name: flutter_login_app
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-
+publish_to: 'none' 
 version: 1.0.0+1
 
 environment:
@@ -13,17 +10,21 @@ environment:
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
   font_awesome_flutter: ^10.2.0
-  # The following adds the Cupertino framework, which is required for iOS style
-  # The following adds the Cupertino Icons font to your application.
+  # The following dependency adds the Cupertino framework, which is required for iOS style
+  # The following dependency adds the Cupertino Icons font.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+
+
+  http: ^1.2.1 
+
+
+  cached_network_image: ^3.3.0
+  shared_preferences: ^2.2.2
 
 
   # font_awesome_flutter: ^10.7.0
@@ -31,17 +32,15 @@ dependencies:
   permission_handler: ^12.0.0+1 # Keep your current version or update if needed
   geocoding: ^2.2.1 # ADD THIS LINE
   url_launcher: ^6.3.0 # Or the latest stable version
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # Add these lines:
-  geolocator: ^11.0.0 # Latest stable version as of my last update
-  permission_handler: ^12.0.0+1 # Latest stable version as of my last update
- # Keep your existing font_awesome_flutter
-  # ... other dependencies you might have
 
+  geolocator: ^11.0.0 #latest stable version
+  permission_handler: ^12.0.0+1 # Latest stable version 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -49,14 +48,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
   assets:

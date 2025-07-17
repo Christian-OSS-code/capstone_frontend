@@ -156,7 +156,7 @@ class _EmergencyLoginPageState extends State<EmergencyLoginPage> {
 
               ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/signup_page');
+                  Navigator.pushNamed(context, '/artisan_service_request');
                 },
                 icon: const FaIcon(
                   FontAwesomeIcons.userPlus,

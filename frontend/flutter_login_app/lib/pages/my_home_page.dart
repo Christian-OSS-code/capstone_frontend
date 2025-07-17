@@ -7,38 +7,13 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.grey.shade300,
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.network(
-              'https://res.cloudinary.com/dizbx1i1w/image/upload/v1752209937/fixam_logo_tkheom.png',
-              width: 20,
-              height: 15,
-              fit: BoxFit.contain,
-              loadingBuilder:
-                  (
-                    BuildContext context,
-                    Widget child,
-                    ImageChunkEvent? loadingProgress,
-                  ) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.broken_image, color: Colors.red);
-              },
-            ),
             Text(
-              "Welcome to FiXam",
+              "Home Page",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -54,63 +29,11 @@ class MyHomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Container(
-                width: 320,
-                height: 120,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      spreadRadius: 3,
-                      blurRadius: 10,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                  gradient: LinearGradient(
-                    colors: [Colors.orange.shade700, Colors.orange.shade900],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/emergency_login_page");
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      FaIcon(
-                        FontAwesomeIcons.truck,
-                        color: Colors.white,
-                        size: 50,
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        "Connect to Your Road Hero",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
               Image.network(
-                'https://res.cloudinary.com/dizbx1i1w/image/upload/v1752266083/spanner_adjust_iubaen.png',
-                width: 70,
-                height: 40,
-                fit: BoxFit.cover,
+                'https://res.cloudinary.com/dizbx1i1w/image/upload/v1752209937/fixam_logo_tkheom.png',
+                width: 40,
+                height: 15,
+                fit: BoxFit.contain,
                 loadingBuilder:
                     (
                       BuildContext context,
@@ -131,7 +54,67 @@ class MyHomePage extends StatelessWidget {
                   return const Icon(Icons.broken_image, color: Colors.red);
                 },
               ),
-              const SizedBox(height: 10),
+              const Text(
+                "Welcome to Titahbi Assist",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              Container(
+                width: 270,
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      spreadRadius: 3,
+                      blurRadius: 10,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                  gradient: LinearGradient(
+                    colors: [Colors.orange.shade700, Colors.orange.shade900],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "/user_login_page");
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const <Widget>[
+                      FaIcon(
+                        FontAwesomeIcons.truck,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "Get Instance Help",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
               Text(
                 "Already a User?",
                 style: TextStyle(
@@ -140,13 +123,13 @@ class MyHomePage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 30),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   Container(
-                    width: 320,
-                    height: 90,
+                    width: 270,
+                    height: 100,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
@@ -157,7 +140,7 @@ class MyHomePage extends StatelessWidget {
                         ),
                       ],
                       gradient: LinearGradient(
-                        colors: [Colors.blue.shade700, Colors.blue.shade900],
+                        colors: [Colors.blueAccent, Colors.blue.shade600],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -194,64 +177,61 @@ class MyHomePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Container(
-                        width: 320,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              spreadRadius: 3,
-                              blurRadius: 10,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blue.shade700,
-                              Colors.blue.shade900,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Container(
+                    width: 270,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          spreadRadius: 3,
+                          blurRadius: 10,
+                          offset: const Offset(0, 6),
                         ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/signup_page");
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const <Widget>[
-                              FaIcon(
-                                FontAwesomeIcons.userPlus,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                "Create Your New Account",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
+                      ],
+                      gradient: LinearGradient(
+                        colors: [Colors.blueAccent, Colors.blue.shade600],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/signup_page");
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                    ],
+
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const <Widget>[
+                          FaIcon(
+                            FontAwesomeIcons.userPlus,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            "Create Your New Account",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
