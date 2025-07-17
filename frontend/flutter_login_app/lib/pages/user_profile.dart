@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 
 class UserProfileCreation extends StatefulWidget {
   const UserProfileCreation({super.key});
@@ -101,6 +102,19 @@ class _UserProfileCreationState extends State<UserProfileCreation> {
     }
   }
 
+  Future<Map<String, double>> _reverseGeocodingFromHumanAddressToCoordinate(
+    String address,
+  ) async {
+    List<Location> locations = await locationFromAddress(address);
+
+    Location initialLocation = locations.first;
+
+    return {
+      "latitude": initialLocation.latitude,
+      "longitude": initialLocation.longitude,
+    };
+  }
+
   Future<void> _saveUserProfile() async {
     if (_userId == null || _authToken == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -119,6 +133,21 @@ class _UserProfileCreationState extends State<UserProfileCreation> {
       final String email = _emailController.text.trim();
       final String phoneNumber = _phoneNumberController.text.trim();
       final String location = _locationController.text.trim();
+
+      final Map<String, double> geoLocationCoordinates =
+          await _reverseGeocodingFromHumanAddressToCoordinate(location);
+
+     
+      final Map<String, dynamic> profileInfo = {
+        'userId': _userId,
+        'name': name,
+        'email': email,
+        'phone': phoneNumber,
+        'locationHumanReadable': location,
+        'locationLongitude': geoLocationCoordinates['longitude'],
+        'locationLatitude': geoLocationCoordinates['latitude'],
+      };
+      await Future.delayed(const Duration(seconds: 5));
 
       if (name.isEmpty ||
           email.isEmpty ||
@@ -152,15 +181,20 @@ class _UserProfileCreationState extends State<UserProfileCreation> {
       );
       if (mounted) {
         if (_isArtisan) {
-          Navigator.pushNamed(context, '/artisans_dashboard');
+          debugPrint(
+            "longitude: ${geoLocationCoordinates['longitude']}, latitude: ${geoLocationCoordinates['latitude']}",
+          );
+          Navigator.pushReplacementNamed(context, '/artisans_dashboard');
         } else {
           Navigator.pushNamed(context, '/mechanic_service_request');
         }
       }
     } catch (e) {
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+
             content: Text("Profile couldn't save"),
             backgroundColor: Colors.red,
           ),
@@ -215,7 +249,7 @@ class _UserProfileCreationState extends State<UserProfileCreation> {
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _nameController,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.name,
                     decoration: const InputDecoration(
                       labelText: "Enter your full names",
                       hintText: "e.g John Kongo",
@@ -227,6 +261,7 @@ class _UserProfileCreationState extends State<UserProfileCreation> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -261,7 +296,6 @@ class _UserProfileCreationState extends State<UserProfileCreation> {
                         RegExp(r'(?!^\+)[^\d]'),
                         '',
                       );
-
                       if (!_validPhoneNumber.hasMatch(cleanedValue)) {
                         return "Enter a valid phone number";
                       }

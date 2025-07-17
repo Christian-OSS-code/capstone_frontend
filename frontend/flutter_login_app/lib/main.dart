@@ -7,6 +7,8 @@ import 'package:flutter_login_app/pages/my_home_page.dart';
 import 'package:flutter_login_app/pages/signup_page.dart';
 import 'package:flutter_login_app/pages/user_login_page.dart';
 import 'package:flutter_login_app/pages/user_profile.dart';
+import 'package:flutter_login_app/pages/emergency_login_page.dart';
+// import 'package:flutter_login_app/pages/artisan_service_request.dart';
 
 void main() {
   runApp(const RouterPage());
@@ -35,9 +37,10 @@ class RouterPage extends StatelessWidget {
         '/': (context) => const MyHomePage(),
         '/signup_page': (context) => const SignUpPage(),
         '/user_login_page': (context) => const UserLoginPage(),
-
+        '/emergency_login_page': (context) => const EmergencyLoginPage(),
         '/available_mechanics_page': (context) => const AvailableArtisanPage(),
         '/artisans_dashboard': (context) => const ArtisanDashboardPage(),
+        // '/artisan_service_request': (context) => const MechanicServiceRequest(),
       },
       onGenerateRoute: (RouteSettings settings) {
         if (settings.name == '/user_profile') {

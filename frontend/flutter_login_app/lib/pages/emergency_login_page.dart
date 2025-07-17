@@ -130,7 +130,7 @@ class _EmergencyLoginPageState extends State<EmergencyLoginPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               ElevatedButton.icon(
                 onPressed: _handleEmergencyLogin,
                 icon: const FaIcon(
@@ -177,7 +177,6 @@ class _EmergencyLoginPageState extends State<EmergencyLoginPage> {
                   ),
                 ),
               ),
-              
             ],
           ),
         ),

@@ -31,8 +31,8 @@ class MyHomePage extends StatelessWidget {
             children: <Widget>[
               Image.network(
                 'https://res.cloudinary.com/dizbx1i1w/image/upload/v1752209937/fixam_logo_tkheom.png',
-                width: 40,
-                height: 15,
+                width: 200,
+                height: 50,
                 fit: BoxFit.contain,
                 loadingBuilder:
                     (
@@ -83,7 +83,10 @@ class MyHomePage extends StatelessWidget {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, "/user_login_page");
+                    Navigator.pushReplacementNamed(
+                      context,
+                      "/emergency_login_page",
+                    );
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
