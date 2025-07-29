@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_login_app/pages/active_job_request.dart';
 import 'package:flutter_login_app/pages/available_artisans_page.dart';
+import 'package:flutter_login_app/pages/driver_job_history.dart';
+import 'package:flutter_login_app/pages/job_history.dart';
+import 'package:flutter_login_app/pages/job_request.dart';
 import 'package:flutter_login_app/pages/my_home_page.dart';
 import 'package:flutter_login_app/pages/signup_page.dart';
 import 'package:flutter_login_app/pages/user_login_page.dart';
@@ -7,10 +11,6 @@ import 'package:flutter_login_app/pages/emergency_login_page.dart';
 import 'package:flutter_login_app/pages/artisan_service_request.dart';
 import 'package:flutter_login_app/pages/artisan_profile.dart';
 import 'package:flutter_login_app/pages/artisan_dashboard.dart';
-import 'package:flutter_login_app/pages/job_request.dart';
-import 'package:flutter_login_app/pages/active_job_request.dart';
-import 'package:flutter_login_app/pages/job_history.dart';
-import 'package:flutter_login_app/pages/driver_job_history.dart';
 
 void main() {
   runApp(const RouterPage());
@@ -42,88 +42,107 @@ class RouterPage extends StatelessWidget {
         '/emergency_login_page': (context) => const EmergencyLoginPage(),
         '/artisan_service_request': (context) => const ArtisanServiceRequest(),
         '/available_artisans_page': (context) => const AvailableArtisansPage(),
-        '/job_request': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>?;
-          if (args != null && args.containsKey('authToken') && args.containsKey('userId')) {
+
+        '/job_requests': (contex) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, String>?;
+          if (args != null &&
+              args.containsKey('authToken') &&
+              args.containsKey('userId')) {
             return JobRequestsPage(
               authToken: args['authToken']!,
               userId: args['userId']!,
             );
           }
           return const Scaffold(
-            body: Center(child: Text("Error: Missing authToken or userId")),
+            body: Center(child: Text("Token or Id Not Found")),
           );
         },
+
         '/active_job_request': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>?;
-          if (args != null && args.containsKey('authToken') && args.containsKey('userId')) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, String>?;
+
+          if (args != null &&
+              args.containsKey('authToken') &&
+              args.containsKey('userId')) {
             return ActiveJobsPage(
               authToken: args['authToken']!,
               userId: args['userId']!,
             );
           }
           return const Scaffold(
-            body: Center(child: Text("Error: Missing authToken or userId")),
+            body: Center(child: Text("Token or Id Not Found")),
           );
         },
         '/job_history': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>?;
-          if (args != null && args.containsKey('authToken') && args.containsKey('userId')) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, String>?;
+          if (args != null &&
+              args.containsKey('authToken') &&
+              args.containsKey('userId')) {
             return JobHistoryPage(
               authToken: args['authToken']!,
               userId: args['userId']!,
             );
           }
-          return const Scaffold(
-            body: Center(child: Text("Error: Missing authToken or userId")),
-          );
+          return Scaffold(body: Center(child: Text("Missing Token or Id")));
         },
         '/artisan_profile': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>?;
-          if (args != null && args.containsKey('authToken') && args.containsKey('userId')) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, String>?;
+          if (args != null &&
+              args.containsKey('authToken') &&
+              args.containsKey('userId')) {
             return ArtisanProfileCreation(
               authToken: args['authToken']!,
               userId: args['userId']!,
             );
           }
-          return const Scaffold(
-            body: Center(child: Text("Error: Missing authToken or userId")),
+          return Scaffold(
+            body: Center(child: Text('Missing Token or Id'))
+
           );
         },
-        '/artisan_dashboar': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>?;
-          if (args != null && args.containsKey('authToken') && args.containsKey('userId')) {
+        '/artisan_dashboard': (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, String>?;
+
+          if (args != null &&
+              args.containsKey('authToken') &&
+              args.containsKey('userId')) {
             return ArtisanDashboardPage(
               authToken: args['authToken']!,
               userId: args['userId']!,
             );
           }
           return const Scaffold(
-            body: Center(child: Text("Error: Missing authToken or userId")),
+            body: Center(child: Text("Token or Id Not Found")),
           );
         },
-
-
         '/driver_job_history': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-          if (args != null && args.containsKey('authToken') && args.containsKey('userId')) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, String>?;
+
+          if (args != null &&
+              args.containsKey('authToken') &&
+              args.containsKey('userId')) {
             return DriverJobHistoryPage(
               authToken: args['authToken']!,
               userId: args['userId']!,
             );
           }
           return const Scaffold(
-            body: Center(child: Text("Error: Missing authToken or userId")),
+            body: Center(child: Text("Token or Id Not Found")),
           );
         },
       },
-
-
-      
-
-
-
-
       onGenerateRoute: (RouteSettings settings) {
         if (settings.name == '/user_profile') {
           final credential = settings.arguments as Map<String, String>?;
@@ -140,14 +159,16 @@ class RouterPage extends StatelessWidget {
           }
           return MaterialPageRoute(
             builder: (context) => const Scaffold(
-              body: Center(child: Text("Error: profile data missing")),
-            ),
+                body: Center(child: Text("Error: profile data missing")),
+              ),
+            
           );
         }
         return MaterialPageRoute(
           builder: (context) => const Scaffold(
-            body: Center(child: Text("Error: Unknown route")),
-          ),
+              body: Center(child: Text("Erro: Unknown route")),
+            ),
+          
         );
       },
     );

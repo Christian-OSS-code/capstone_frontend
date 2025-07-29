@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -9,113 +12,118 @@ class UserLoginPage extends StatefulWidget {
 }
 
 class _UserLoginPageState extends State<UserLoginPage> {
-  final GlobalKey<FormState> _loginKey = GlobalKey();
-  final TextEditingController _emailController = TextEditingController();
+  final GlobalKey<FormState> _userLoginKey = GlobalKey();
+  final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   final RegExp _validEmail = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
 
-  bool isArtisan = false;
-  bool _isUserCredentialsLoading = false;
+  final RegExp _validPhoneNumber = RegExp(r'^\+?[1-9]\d{5,14}$');
+  bool _isUserDataLoading = false;
+  bool _isObscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _emailOrPhoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<Map<String, dynamic>> _handleDummyLoginApi(
-    String email,
-    String password,
-  ) async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (email == 'christianmary2020@gmail.com' && password == 'password12345') {
-      return {
-        'userId': 'id_001',
-        'auth_token': 'jwt_020',
-        'profileCompleted': false,
-        'isArtisan': false,
-      };
-    } else if (email == 'as@example.com' && password == 'asexample123') {
-      return {
-        'userId': 'driv_002',
-        'auth_token': 'jwt_909',
-        'profileCompleted': true,
-        'isArtisan': false,
-      };
-    } else if (email == 'div@example.com' && password == 'password1010') {
-      return {
-        'userId': 'div_023',
-        'auth_token': 'div_mok_12',
-        'profileCompleted': true,
-        'isArtisan': false,
-      };
-    } else {
-      throw Exception("Invalid credentials");
-    }
-  }
-
   Future<void> _handleUserLogin() async {
-    if (!_loginKey.currentState!.validate()) {
+    if (!(_userLoginKey.currentState?.validate() ?? false)) {
       return;
     }
-    if (mounted) {
-      setState(() {
-        _isUserCredentialsLoading = true;
-      });
-    }
+    setState(() {
+      _isUserDataLoading = true;
+    });
     try {
-      final String email = _emailController.text;
-      final String password = _passwordController.text;
-      final Map<String, dynamic> loginResponse = await _handleDummyLoginApi(
-        email,
-        password,
+      final String loginText = _emailOrPhoneController.text.trim();
+
+      final String loginPassword = _passwordController.text.trim();
+
+      final Map<String, dynamic> loginRequestBody = {
+        'login': loginText,
+        'password': loginPassword,
+      };
+      final String loginRequestUrl =
+          'http://16.171.145.59:8000/api/accounts/auth/login/';
+
+      final loginResponse = await http.post(
+        Uri.parse(loginRequestUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(loginRequestBody),
       );
-
-      final String userId = loginResponse['userId'];
-      final String authToken = loginResponse['auth_token'];
-      final bool profileCompleted = loginResponse['profileCompleted'];
-      final bool isArtisanFromBackend = loginResponse['isArtisan'];
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login Successful! Redirecting...")),
+      if (loginResponse.statusCode == 200) {
+        final Map<String, dynamic> loginResponseData = jsonDecode(
+          loginResponse.body,
         );
-        await Future.delayed(const Duration(milliseconds: 500));
+        final String? accessToken = loginResponseData['access'];
+        final String? refreshToken = loginResponseData['refresh'];
+        final Map<String, dynamic> user = loginResponseData['user'];
+        debugPrint("login response: $loginResponseData");
+        if (accessToken != null && refreshToken != null) {
+          final SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
+          await sharedPreferences.setString('access_token', accessToken);
+          await sharedPreferences.setString('refresh_token', refreshToken);
+          await sharedPreferences.setString('user_id', user['id'].toString());
 
-        if (!profileCompleted) {
-          Navigator.pushReplacementNamed(
-            context,
-            '/user_profile',
-            arguments: {'userId': userId, 'authToken': authToken},
-          );
-        } else {
-          if (isArtisanFromBackend) {
-            Navigator.pushReplacementNamed(context, '/artisans_dashboard');
-          } else {
+          debugPrint("User: $user");
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Login Successful! Redirecting...")),
+            );
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (!mounted) return;
+
             Navigator.pushReplacementNamed(
               context,
-              '/mechanic_service_request',
+              '/artisan_dashboard',
+              arguments: {
+                'userId': user['pk'].toString(),
+                'authToken': accessToken,
+              },
             );
           }
+        } else {
+          throw Exception("Server not responding");
+        }
+      } else {
+        String loginErrorMessage =
+            "Login not successful. Check your credentials";
+        try {
+          if (loginResponse.body.isNotEmpty) {
+            final errorData = jsonDecode(loginResponse.body);
+            loginErrorMessage = errorData['detail'] ?? loginErrorMessage;
+          }
+        } catch (e) {
+          debugPrint("Error parsing error response: $e");
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(loginErrorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     } catch (e) {
+      debugPrint("Error trying to login: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Login was not successful"),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text("An error occured: ${e.toString()}")),
         );
       }
     } finally {
       if (mounted) {
         setState(() {
-          _isUserCredentialsLoading = false;
+          _isUserDataLoading = false;
         });
       }
     }
@@ -124,151 +132,141 @@ class _UserLoginPageState extends State<UserLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(title: Text("Login"), elevation: 0),
-
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: Text("Login Page"), elevation: 0,
+      backgroundColor: Colors.orange,
+      foregroundColor: Colors.white,
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(14.0),
           child: Form(
-            key: _loginKey,
+            key: _userLoginKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const FaIcon(
-                  FontAwesomeIcons.userCircle,
-                  color: Colors.blueAccent,
-                  size: 60,
+                  FontAwesomeIcons.userPlus,
+                  color: Colors.grey,
+                  size: 50,
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Welcome Back",
+                  "Welcome Back !",
                   style: TextStyle(
-                    color: Colors.blueAccent,
-                    fontSize: 28,
+                    color: Colors.black87,
+                    fontSize: 30,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
                 Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
                   elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextFormField(
-                      controller: _emailController,
+                      controller: _emailOrPhoneController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        hintText: "Enter your email",
+                      decoration: InputDecoration(
+                        hintText: "Email or Phone Number",
+                        prefixIcon: const Icon(
+                          Icons.person,
+                          color: Colors.grey,
+                        ),
                         border: InputBorder.none,
-                        prefixIcon: Icon(Icons.email, color: Colors.grey),
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 15,
-                          horizontal: 20,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18,
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Email cannot be empty";
-                        } else if (!_validEmail.hasMatch(value)) {
-                          return "Enter a valid email address";
+                          return "email cannot be empty";
+                        }
+                        if (!_validEmail.hasMatch(value) &&
+                            !_validPhoneNumber.hasMatch(
+                              value.replaceAll(RegExp(r'(?!^\+)[^\d]'), ''),
+                            )) {
+                          return "Enter a valid email or phone number";
                         }
                         return null;
                       },
                     ),
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
+
                 Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
                   elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextFormField(
                       controller: _passwordController,
-                      obscureText: true,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        hintText: "Enter your password",
+                      obscureText: _isObscurePassword,
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isObscurePassword = !_isObscurePassword;
+                            });
+                          },
+                          icon: Icon(
+                            _isObscurePassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                        ),
                         border: InputBorder.none,
-                        prefixIcon: Icon(Icons.lock, color: Colors.grey),
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 15,
-                          horizontal: 20,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18,
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Password cannot be empty";
+                          return "password cannot be empty";
                         } else if (value.length < 8) {
-                          return "Password must be at least 8 characters of length";
+                          return "Password must be at least  characters";
                         }
+
                         return null;
                       },
                     ),
                   ),
                 ),
-
-                
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                
-                ),
-                const SizedBox(height: 20),
-
-                Container(
+                const SizedBox(height: 30),
+                SizedBox(
                   width: double.infinity,
                   height: 50,
-                  margin: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  // const SizedBox(height: 15)
                   child: ElevatedButton(
-                    onPressed: _isUserCredentialsLoading
-                        ? null
-                        : _handleUserLogin,
+                    onPressed: _isUserDataLoading ? null : _handleUserLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: Colors.orangeAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
-
-                    child: _isUserCredentialsLoading
+                    child: _isUserDataLoading
                         ? const CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.green,
+                              Colors.white,
                             ),
                           )
                         : const Text(
                             "Login",
                             style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
                               fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/signup_page');
-                  },
-                  child: const Text(
-                    "Don't have an account? Sign Up",
-                    style: TextStyle(color: Colors.blueAccent),
                   ),
                 ),
               ],

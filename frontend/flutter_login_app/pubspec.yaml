@@ -28,10 +28,11 @@ dependencies:
 
 
 
-  geolocator: ^11.1.0 
-  permission_handler: ^12.0.0+1 
+  geolocator: ^11.1.0 # Keep your current version or update if needed
+  permission_handler: ^12.0.0+1 # Keep your current version or update if needed
   geocoding: ^2.2.1 
   url_launcher: ^6.3.0 
+  
   
 
 dev_dependencies:
