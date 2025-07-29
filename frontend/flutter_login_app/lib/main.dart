@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_login_app/pages/artisans_dashboard.dart';
 import 'package:flutter_login_app/pages/available_artisans_page.dart';
-
 import 'package:flutter_login_app/pages/my_home_page.dart';
 import 'package:flutter_login_app/pages/signup_page.dart';
 import 'package:flutter_login_app/pages/user_login_page.dart';
-import 'package:flutter_login_app/pages/user_profile.dart';
 import 'package:flutter_login_app/pages/emergency_login_page.dart';
-// import 'package:flutter_login_app/pages/artisan_service_request.dart';
+import 'package:flutter_login_app/pages/artisan_service_request.dart';
+import 'package:flutter_login_app/pages/artisan_profile.dart';
+
 
 void main() {
   runApp(const RouterPage());
@@ -38,9 +36,10 @@ class RouterPage extends StatelessWidget {
         '/signup_page': (context) => const SignUpPage(),
         '/user_login_page': (context) => const UserLoginPage(),
         '/emergency_login_page': (context) => const EmergencyLoginPage(),
-        '/available_mechanics_page': (context) => const AvailableArtisanPage(),
-        '/artisans_dashboard': (context) => const ArtisanDashboardPage(),
-        // '/artisan_service_request': (context) => const MechanicServiceRequest(),
+        '/artisan_service_request': (context) => const ArtisanServiceRequest(),
+        '/available_artisans_page': (context) => const AvailableArtisansPage(),
+        '/artisan_profile': (context) => const ArtisanProfileCreation(),
+        
       },
       onGenerateRoute: (RouteSettings settings) {
         if (settings.name == '/user_profile') {
@@ -49,7 +48,7 @@ class RouterPage extends StatelessWidget {
               credential.containsKey('userId') &&
               credential.containsKey('authToken')) {
             return MaterialPageRoute(
-              builder: (context) => UserProfileCreation(),
+              builder: (context) => ArtisanProfileCreation(),
               settings: settings,
             );
           }

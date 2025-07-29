@@ -83,10 +83,7 @@ class MyHomePage extends StatelessWidget {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      "/emergency_login_page",
-                    );
+                    Navigator.pushReplacementNamed(context, "/signup_page");
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -117,127 +114,6 @@ class MyHomePage extends StatelessWidget {
               ),
 
               const SizedBox(height: 30),
-
-              Text(
-                "Already a User?",
-                style: TextStyle(
-                  color: Colors.blue.shade800,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 30),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(
-                    width: 270,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          spreadRadius: 3,
-                          blurRadius: 10,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                      gradient: LinearGradient(
-                        colors: [Colors.blueAccent, Colors.blue.shade600],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/user_login_page");
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const <Widget>[
-                          FaIcon(
-                            FontAwesomeIcons.signInAlt,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "Login to Your Account",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(
-                    width: 270,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          spreadRadius: 3,
-                          blurRadius: 10,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                      gradient: LinearGradient(
-                        colors: [Colors.blueAccent, Colors.blue.shade600],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/signup_page");
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const <Widget>[
-                          FaIcon(
-                            FontAwesomeIcons.userPlus,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "Create Your New Account",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
