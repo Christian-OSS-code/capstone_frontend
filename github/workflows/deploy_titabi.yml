@@ -27,7 +27,7 @@ jobs:
         run: flutter pub get
 
       - name: Build flutter application
-        run: flutter web
+        run: flutter build web
 
 
 
