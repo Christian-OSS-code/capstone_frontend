@@ -27,7 +27,8 @@ jobs:
         run: flutter pub get
 
       - name: Build flutter application
-        run: flutter build web
+        run: flutter build apk --release
+
 
 
 
