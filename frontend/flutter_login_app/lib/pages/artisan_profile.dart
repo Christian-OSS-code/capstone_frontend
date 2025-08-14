@@ -5,13 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ArtisanProfileCreation extends StatefulWidget {
-  final String authToken;
-  final String userId;
-  const ArtisanProfileCreation({
-    super.key,
-    required this.authToken,
-    required this.userId,
-  });
 
   @override
   State<ArtisanProfileCreation> createState() => _ArtisanProfileCreationState();
@@ -201,14 +194,12 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
         if (!_isArtisan) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Redirecting to job history...")),
             );
             await Future.delayed(const Duration(milliseconds: 500));
             if (mounted) {
               Navigator.pushReplacementNamed(
                 context,
                 '/artisan_service_request',
-                arguments: {'authToken': _authToken, 'userId': _userId},
               );
             }
             return;
@@ -403,9 +394,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
         if (mounted) {
           Navigator.pushReplacementNamed(
             context,
-            _isArtisan ? '/artisan_dashboard' : '/artisan_service_request',
-
-            arguments: {'userId': _userId!, 'authToken': _authToken!},
           );
         }
       }
@@ -437,43 +425,8 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
               ? "Complete Your Artisan Profile"
               : "Complete Your Profile",
         ),
-        backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
         elevation: 5,
-
-        leading: PopupMenuButton<String>(
-          icon: const Icon(Icons.menu),
-          onSelected: (value) {
-            if (value == 'dashboard') {
-              Navigator.pushReplacementNamed(
-                context,
-                '/artisan_dashboard',
-                arguments: {
-                  'authToken': widget.authToken,
-                  'userId': widget.userId,
-                },
-              );
-            } else if (value == 'home') {
-              Navigator.pushReplacementNamed(
-                context,
-                '/my_home_page',
-                arguments: {
-                  'authToken': widget.authToken,
-                  'userId': widget.userId,
-                },
-              );
-            }
-          },
-          itemBuilder: (BuildContext context) =>[
-            const PopupMenuItem(
-              value: 'dashboard',
-              child: Text('Artisan Dashboard')),
-              const PopupMenuItem<String>(
-                value: 'home',
-
-                child: Text('Home Page')),
-          ],
-        ),
       ),
       body: _isInitialDataLoading
           ? const Center(
@@ -503,7 +456,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
                           ? "You are logged in as an Artisan"
                           : "You are logged in as a Driver",
                       style: const TextStyle(
-                        color: Colors.orange,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -579,7 +531,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
                       const Text(
                         "Provide Your Details",
                         style: TextStyle(
-                          color: Color(0xFF2C3E50),
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -674,7 +625,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
                               ElevatedButton(
                                 onPressed: _addArtisanSpecialties,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0XFFFF7F11),
                                   padding: const EdgeInsets.all(15),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -699,16 +649,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
                                       deleteIcon: const Icon(Icons.close),
                                       onDeleted: () =>
                                           _removeArtisanSpecialty(skill),
-                                      backgroundColor: Color(0xFFE3F2FD),
-                                      labelStyle: TextStyle(
-                                        color: Color(0xFF1976D2),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-
-                                        side: BorderSide(
-                                          color: Color(0xFFBBDEFB),
-                                        ),
                                       ),
                                     ),
                                   )
@@ -737,7 +677,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
                             ? null
                             : _saveArtisanProfile,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 124, 143, 124),
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
@@ -784,10 +723,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
   }) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: BorderSide(color: Color(0xFFE0E0E0)),
-      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: TextFormField(
@@ -806,7 +741,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
           ),
           validator: validator,
         ),
-      ),
     );
   }
 
@@ -816,10 +750,6 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
   }) {
     return Card(
       elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: BorderSide(color: Color(0xFFE0E0E0)),
-      ),
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(18.0),
@@ -829,12 +759,10 @@ class _ArtisanProfileCreationState extends State<ArtisanProfileCreation> {
             Text(
               title,
               style: TextStyle(
-                color: Colors.orange,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Divider(height: 20, thickness: 1, color: Color(0XFFE0E0E0)),
             ...children,
           ],
         ),

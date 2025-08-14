@@ -83,7 +83,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
             Navigator.pushReplacementNamed(
               context,
-              '/artisan_dashboard',
+              '/artisan_profile',
               arguments: {
                 'userId': user['pk'].toString(),
                 'authToken': accessToken,
@@ -132,11 +132,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: Text("Login Page"), elevation: 0,
-      backgroundColor: Colors.orange,
-      foregroundColor: Colors.white,
-      ),
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(title: Text("Login Page"), elevation: 0),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(14.0),
@@ -147,14 +144,14 @@ class _UserLoginPageState extends State<UserLoginPage> {
               children: <Widget>[
                 const FaIcon(
                   FontAwesomeIcons.userPlus,
-                  color: Colors.grey,
+                  color: Colors.blueAccent,
                   size: 50,
                 ),
                 const SizedBox(height: 20),
                 const Text(
                   "Welcome Back !",
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: Colors.blueAccent,
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
                   ),
@@ -248,7 +245,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   child: ElevatedButton(
                     onPressed: _isUserDataLoading ? null : _handleUserLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
+                      backgroundColor: Colors.blueAccent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

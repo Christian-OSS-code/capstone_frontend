@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,7 +16,8 @@ class ArtisanServiceRequest extends StatefulWidget {
 }
 
 class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
-  final TextEditingController _problemDescriptionController = TextEditingController();
+  final TextEditingController _problemDescriptionController =
+      TextEditingController();
   Position? _currentPosition;
   String? _currentAddress;
   bool _isLoadingLocation = false;
@@ -39,7 +41,7 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
     if (_userId == null || _authToken == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text("Please login to continue"),
             backgroundColor: Colors.red,
           ),
@@ -53,51 +55,50 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
 
   Future<void> _fetchCategories() async {
     try {
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      };
       final response = await http.get(
         Uri.parse('http://16.171.145.59:8000/api/artisans/categories/'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: headers,
       );
+
       if (response.statusCode == 200) {
         final List<dynamic> categories = jsonDecode(response.body);
         setState(() {
           _categories = categories.cast<Map<String, dynamic>>();
-          _selectedCategoryId = categories.isNotEmpty ? categories.first['id'] : null;
+          _selectedCategoryId = categories.isNotEmpty
+              ? categories.first['id']
+              : null;
         });
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Failed to fetch categories: ${response.statusCode}"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Error fetching categories"),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: Text("Failed to Fetch Categories: ${response.statusCode}"),
           ),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error Occured in Fetching Categories")),
+      );
     }
   }
 
   Future<String?> _refreshToken() async {
     final preference = await SharedPreferences.getInstance();
     final refreshToken = preference.getString('refresh_token');
-    if (refreshToken == null) return null;
+    if (refreshToken == null) {
+      return null;
+    }
     try {
       final response = await http.post(
         Uri.parse('http://16.171.145.59:8000/api/account/auth/refresh/'),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode({'refresh': refreshToken}),
       );
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final newAccessToken = data['access'];
@@ -109,7 +110,7 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
       }
       return null;
     } catch (e) {
-      print('Error refreshing token: $e');
+      debugPrint("Error in Refreshing token $e");
       return null;
     }
   }
@@ -117,19 +118,17 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
   Future<void> _readLocationPermission() async {
     bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!isLocationServiceEnabled) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Please enable location services"),
-            action: SnackBarAction(
-              label: 'Enable',
-              onPressed: () async {
-                await Geolocator.openLocationSettings();
-              },
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Please enable location services"),
+          action: SnackBarAction(
+            label: 'Enable',
+            onPressed: () async {
+              await Geolocator.openLocationSettings();
+            },
           ),
-        );
-      }
+        ),
+      );
       return;
     }
     final bool? allowLocation = await showDialog<bool>(
@@ -137,22 +136,30 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
           title: const Text("Access to Location is required"),
           content: const Text(
-            'Titabi needs access to your current location to find nearby artisans. Please allow location access.',
+            'Titabi needs acces to your current location to find nearby artisan'
+            'Please allow location access.',
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
               child: const Text("No Thanks"),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
               ),
+
               child: const Text("Allow Location"),
             ),
           ],
@@ -162,13 +169,13 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
     if (allowLocation == true) {
       _getCurrentLocationAndHandlePermission();
     } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Unable to find nearby artisans because location access was denied"),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Unable to Find Nearby Mechanics Beacuse Location Access Was Denied",
           ),
-        );
-      }
+        ),
+      );
     }
   }
 
@@ -179,7 +186,8 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
     try {
       var permissionStatus = await Permission.locationWhenInUse.status;
       if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-        permissionStatus = await Permission.locationWhenInUse.request();
+        var newPermissionStatus = await Permission.locationWhenInUse.request();
+        permissionStatus = newPermissionStatus;
       }
       if (permissionStatus.isGranted) {
         Position readPosition = await Geolocator.getCurrentPosition(
@@ -188,188 +196,229 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
         setState(() {
           _currentPosition = readPosition;
         });
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-          readPosition.latitude,
-          readPosition.longitude,
-        );
-        setState(() {
-          _currentAddress = placemarks.isNotEmpty
-              ? "${placemarks[0].street}, ${placemarks[0].subLocality}, ${placemarks[0].locality}, ${placemarks[0].country}"
-              : "Address Not Found";
-        });
-        if (_currentPosition != null && _authToken != null && _userId != null) {
-          await _createJobRequest();
-        } else {
-          if (mounted) {
+        try {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+            readPosition.latitude,
+            readPosition.longitude,
+          );
+          if (placemarks.isNotEmpty) {
+            Placemark firstPlaceMarker = placemarks[0];
+            _currentAddress =
+                "${firstPlaceMarker.street}, ${firstPlaceMarker.subLocality}, ${firstPlaceMarker.locality}, ${firstPlaceMarker.country}";
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Location: $_currentAddress")),
+            );
+          } else {
+            _currentAddress = "Address Not Found";
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  _currentPosition == null
-                      ? "Location is missing"
-                      : "Authentication error",
+                  "Location found, but address not converted to Human Readable Form",
                 ),
-                backgroundColor: Colors.red,
               ),
             );
           }
-        }
-      } else {
-        if (mounted) {
+        } catch (e) {
+          _currentAddress = "Error Attempting to Find Address";
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text("Location permission denied. Please grant permission to find artisans"),
-              action: SnackBarAction(
-                label: 'Settings',
-                onPressed: openAppSettings,
-              ),
-            ),
+            SnackBar(content: Text("Error Occured in Finding Location")),
           );
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error fetching location: $e"), backgroundColor: Colors.red),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingLocation = false;
-        });
-      }
-    }
-  }
+        if (_currentPosition != null && _authToken != null && _userId != null) {
+          try {
+            String? token = _authToken;
+            var requestBody = {
+              'description': _problemDescriptionController.text.isEmpty
+              ?'Roadside assistance request'
+                 : _problemDescriptionController.text,
+              'lat': _currentPosition!.latitude,
+              'lon': _currentPosition!.longitude,
+              if (_selectedCategoryId != null) 'category': _selectedCategoryId,
+            };
+            var headers = {
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer $token',
+            };
+            var response = await http
+                .post(
+                  Uri.parse('http://16.171.145.59:8000/api/jobs/create/'),
+                  headers: headers,
+                  body: jsonEncode(requestBody),
+                )
+                .timeout(
+                  const Duration(seconds: 30),
+                  onTimeout: () {
+                    throw TimeoutException('Request Time Out');
+                  },
+                );
 
-  Future<void> _createJobRequest() async {
-    try {
-      String? token = _authToken;
-      final requestBody = {
-        'description': _problemDescriptionController.text.isEmpty
-            ? 'Roadside assistance request'
-            : _problemDescriptionController.text,
-        'lat': _currentPosition!.latitude,
-        'lon': _currentPosition!.longitude,
-        if (_selectedCategoryId != null) 'category': _selectedCategoryId,
-      };
-      var headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      };
-      var response = await http.post(
-        Uri.parse('http://16.171.145.59:8000/api/jobs/create/'),
-        headers: headers,
-        body: jsonEncode(requestBody),
-      ).timeout(const Duration(seconds: 30), onTimeout: () {
-        throw TimeoutException('Request timed out');
-      });
+            String responseBody = response.body;
+            bool isJson = true;
 
-      if (response.statusCode == 401) {
-        token = await _refreshToken();
-        if (token != null) {
-          headers['Authorization'] = 'Bearer $token';
-          response = await http.post(
-            Uri.parse('http://16.171.145.59:8000/api/jobs/create/'),
-            headers: headers,
-            body: jsonEncode(requestBody),
-          ).timeout(const Duration(seconds: 30), onTimeout: () {
-            throw TimeoutException('Request timed out');
-          });
+            try {
+              jsonDecode(responseBody);
+            } catch (e) {
+              isJson = false;
+            }
+            if (!isJson) {
+              responseBody = responseBody.length > 1000
+                  ? '${responseBody.substring(0, 1000)}...'
+                  : responseBody;
+            }
+
+            if (response.statusCode == 401) {
+              token = await _refreshToken();
+              if (token != null) {
+                headers['Authorization'] = 'Bearer $token';
+                response = await http
+                    .post(
+                      Uri.parse('http://16.171.145.59:8000/api/jobs/create/'),
+                      headers: headers,
+                      body: jsonEncode(requestBody),
+                    )
+                    .timeout(
+                      const Duration(seconds: 30),
+                      onTimeout: () {
+                        throw TimeoutException(
+                          'Request Time Out. You can Try Again Later',
+                        );
+                      },
+                    );
+                responseBody = response.body;
+                isJson = true;
+                try {
+                  jsonDecode(responseBody);
+                } catch (e) {
+                  isJson = false;
+                }
+                if (!isJson) {
+                  responseBody = responseBody.length > 1000
+                      ? '${responseBody.substring(0, 1000)}...'
+                      : responseBody;
+                }
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Session has expired. Try again"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  Navigator.pushReplacementNamed(context, '/user_login_page');
+                }
+                return;
+              }
+            }
+            if (response.statusCode == 201) {
+              final job = jsonDecode(response.body);
+              if (job['id'] != null && mounted) {
+                await Future.delayed(const Duration(seconds: 2));
+                Navigator.pushNamed(
+                  context,
+                  '/available_artisans_page',
+                  arguments: {
+                    'job_id': job['id'].toString(),
+                    'latitude': _currentPosition!.latitude,
+                    'longitude': _currentPosition!.longitude,
+                    'problem': _problemDescriptionController.text,
+                    'address': _currentAddress,
+                    'userId': _userId,
+                    'authToken': _authToken,
+                  },
+                );
+              }
+            } else {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Failed to create job"),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Error creating job: $e"),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
         } else {
+          String errorMessage = '';
+          if (_currentPosition == null) errorMessage += 'Location is missing.';
+          if (_authToken == null)
+            errorMessage += 'Authentication token missing';
+          if (_userId == null) errorMessage += 'User Id is missing';
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Session expired. Please log in again"),
+              SnackBar(
+                content: Text(errorMessage.isEmpty ? "Error" : errorMessage),
                 backgroundColor: Colors.red,
               ),
             );
-            Navigator.pushReplacementNamed(context, '/user_login_page');
-          }
-          return;
-        }
-      }
-      if (response.statusCode == 201) {
-        final job = jsonDecode(response.body);
-        if (job['id'] != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text("Job request created. Waiting for artisan response..."),
-                backgroundColor: Colors.green),
-          );
-          await Future.delayed(const Duration(seconds: 2));
-          if (mounted) {
-            Navigator.pushNamed(
-              context,
-              '/available_artisans_page',
-              arguments: {
-                'job_id': job['id'].toString(),
-                'latitude': _currentPosition!.latitude,
-                'longitude': _currentPosition!.longitude,
-                'problem': _problemDescriptionController.text,
-                'address': _currentAddress,
-                'userId': _userId,
-                'authToken': _authToken,
-              },
-            );
           }
         }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Failed to create job: ${response.body}"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
+      } else if (permissionStatus.isDenied) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error creating job: $e"),
-            backgroundColor: Colors.red,
+            content: Text(
+              "Permission to location is denied. Grant Permission to view artisans",
+            ),
+            action: SnackBarAction(
+              label: 'settings',
+              onPressed: () {
+                openAppSettings();
+              },
+            ),
           ),
         );
       }
+    } on TimeoutException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Location Time Out. On Your GPS and try again"),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error in finding location: $e")));
+    } finally {
+      setState(() {
+        _isLoadingLocation = false;
+      });
     }
-  }
-
-  @override
-  void dispose() {
-    _problemDescriptionController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Request Mechanic Service"),
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text("Request Mechanic Service",
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      )
+      )),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(6.0),
         child: Column(
           children: [
             TextField(
               controller: _problemDescriptionController,
               decoration: const InputDecoration(
                 labelText: 'Problem Description',
-                border: OutlineInputBorder(),
-                hintText: 'e.g., Flat tire, engine failure',
               ),
-              maxLines: 3,
             ),
             const SizedBox(height: 20),
             if (_categories.isNotEmpty)
-              DropdownButtonFormField<int>(
+              DropdownButton<int>(
                 value: _selectedCategoryId,
-                decoration: const InputDecoration(
-                  labelText: 'Select Category',
-                  border: OutlineInputBorder(),
-                ),
+                hint: const Text("Select Category"),
                 items: _categories.map((category) {
                   return DropdownMenuItem<int>(
                     value: category['id'],
@@ -384,62 +433,11 @@ class _ArtisanServiceRequestState extends State<ArtisanServiceRequest> {
               ),
             const SizedBox(height: 20),
             _isLoadingLocation
-                ? const Center(child: CircularProgressIndicator())
+                ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: _readLocationPermission,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      
-                    ),
-                    child: const Text(
-                      "Get Location and Request Job",
-                      style: TextStyle(fontSize: 16),
-                       
-                    ),
+                    child: const Text("Get Location and Request Job"),
                   ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (_userId != null && _authToken != null) {
-                  Navigator.pushNamed(
-                    context,
-                    '/driver_job_history',
-                    arguments: {
-                      'userId': _userId,
-                      'authToken': _authToken,
-                    },
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Session expired. Please log in again."),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  Navigator.pushReplacementNamed(context, '/user_login_page');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text(
-                "View Job History",
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-            if (_currentAddress != null) ...[
-              const SizedBox(height: 20),
-              Text(
-                "Current Location: $_currentAddress",
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
           ],
         ),
       ),
