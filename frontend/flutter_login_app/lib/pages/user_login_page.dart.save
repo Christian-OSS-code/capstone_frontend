@@ -1,0 +1,300 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class UserLoginPage extends StatefulWidget {
+  const UserLoginPage({super.key});
+
+  @override
+  State<UserLoginPage> createState() => _UserLoginPageState();
+}
+
+class _UserLoginPageState extends State<UserLoginPage> {
+  final GlobalKey<FormState> _userLoginKey = GlobalKey();
+  final TextEditingController _emailOrPhoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final RegExp _validEmail = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
+  final RegExp _validPhoneNumber = RegExp(r'^\+?[1-9]\d{5,14}$');
+  bool _isUserDataLoading = false;
+  bool _isObscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailOrPhoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleUserLogin() async {
+    if (!(_userLoginKey.currentState?.validate() ?? false)) {
+      return;
+    }
+    setState(() {
+      _isUserDataLoading = true;
+    });
+    try {
+      final String loginText = _emailOrPhoneController.text.trim();
+
+      final String loginPassword = _passwordController.text.trim();
+
+      final Map<String, dynamic> loginRequestBody = {
+        'login': loginText,
+        'password': loginPassword,
+      };
+      final String loginRequestUrl =
+          'http://16.171.145.59:8000/api/accounts/auth/login/';
+
+      final loginResponse = await http.post(
+        Uri.parse(loginRequestUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(loginRequestBody),
+      );
+      if (loginResponse.statusCode == 200) {
+        final Map<String, dynamic> loginResponseData = jsonDecode(
+          loginResponse.body,
+        );
+        final String? accessToken = loginResponseData['access'];
+        final String? refreshToken = loginResponseData['refresh'];
+        final Map<String, dynamic> user = loginResponseData['user'];
+        debugPrint("login response: $loginResponseData");
+        if (accessToken != null && refreshToken != null) {
+          final SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
+          await sharedPreferences.setString('access_token', accessToken);
+          await sharedPreferences.setString('refresh_token', refreshToken);
+          await sharedPreferences.setString('user_id', user['id'].toString());
+
+          debugPrint("User: $user");
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Login Successful! Redirecting...")),
+            );
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (!mounted) return;
+
+            Navigator.pushReplacementNamed(
+              context,
+<<<<<<< HEAD
+              '/artisan_dashboard',
+c=======
+              '/artisan_profile',
+>>>>>>> origin/main
+              arguments: {
+                'userId': user['pk'].toString(),
+                'authToken': accessToken,
+              },
+            );
+          }
+        } else {
+          throw Exception("Server not responding");
+        }
+      } else {
+        String loginErrorMessage =
+            "Login not successful. Check your credentials";
+        try {
+          if (loginResponse.body.isNotEmpty) {
+            final errorData = jsonDecode(loginResponse.body);
+            loginErrorMessage = errorData['detail'] ?? loginErrorMessage;
+          }
+        } catch (e) {
+          debugPrint("Error parsing error response: $e");
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(loginErrorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint("Error trying to login: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("An error occured: ${e.toString()}")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUserDataLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+<<<<<<< HEAD
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: Text("Login Page"), elevation: 0,
+      backgroundColor: Colors.orange,
+      foregroundColor: Colors.white,
+      ),
+=======
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(title: Text("Login Page"), elevation: 0),
+>>>>>>> origin/main
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(14.0),
+          child: Form(
+            key: _userLoginKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const FaIcon(
+                  FontAwesomeIcons.userPlus,
+<<<<<<< HEAD
+                  color: Colors.grey,
+=======
+                  color: Colors.blueAccent,
+>>>>>>> origin/main
+                  size: 50,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Welcome Back !",
+                  style: TextStyle(
+<<<<<<< HEAD
+                    color: Colors.black87,
+=======
+                    color: Colors.blueAccent,
+>>>>>>> origin/main
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextFormField(
+                      controller: _emailOrPhoneController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        hintText: "Email or Phone Number",
+                        prefixIcon: const Icon(
+                          Icons.person,
+                          color: Colors.grey,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "email cannot be empty";
+                        }
+                        if (!_validEmail.hasMatch(value) &&
+                            !_validPhoneNumber.hasMatch(
+                              value.replaceAll(RegExp(r'(?!^\+)[^\d]'), ''),
+                            )) {
+                          return "Enter a valid email or phone number";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextFormField(
+                      controller: _passwordController,
+                      obscureText: _isObscurePassword,
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isObscurePassword = !_isObscurePassword;
+                            });
+                          },
+                          icon: Icon(
+                            _isObscurePassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "password cannot be empty";
+                        } else if (value.length < 8) {
+                          return "Password must be at least  characters";
+                        }
+
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isUserDataLoading ? null : _handleUserLogin,
+                    style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
+                      backgroundColor: Colors.orangeAccent,
+=======
+                      backgroundColor: Colors.blueAccent,
+>>>>>>> origin/main
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: _isUserDataLoading
+                        ? const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
